@@ -106,6 +106,22 @@ export default function Navbar() {
                 </button>
               );
             })}
+
+            {/* Minigame button */}
+            <a
+              href="#minigame"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wide transition-all duration-200"
+              style={{
+                background: 'rgba(240,180,0,0.12)',
+                border: '1px solid rgba(240,180,0,0.4)',
+                color: '#f0b400',
+                textDecoration: 'none',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(240,180,0,0.22)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(240,180,0,0.12)'; }}
+            >
+              🗺️ Minigame
+            </a>
           </div>
 
           {/* Hamburger — animated */}
@@ -209,6 +225,21 @@ export default function Navbar() {
               </button>
             );
           })}
+
+          {/* Minigame link in drawer */}
+          <a
+            href="#minigame"
+            onClick={() => setMenuOpen(false)}
+            className="flex items-center gap-4 w-full px-4 py-3 rounded-xl mb-1 text-left transition-all duration-200 mt-2"
+            style={{
+              background: 'rgba(240,180,0,0.08)',
+              border: '1px solid rgba(240,180,0,0.25)',
+              textDecoration: 'none',
+            }}
+          >
+            <span className="text-base w-5 text-center flex-shrink-0">🗺️</span>
+            <span className="text-sm font-bold" style={{ color: '#f0b400' }}>Minigame</span>
+          </a>
         </div>
 
         {/* Drawer footer */}
