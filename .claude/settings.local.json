@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls d:/FPT/VNR/postcss.config*)",
+      "Bash(node -e \"const lib = require\\(''./node_modules/tailwindcss/dist/lib.js''\\); console.log\\(Object.keys\\(lib\\).slice\\(0,10\\)\\)\")",
+      "Bash(npm install @tailwindcss/vite --save-dev)",
+      "Bash(npm run build)"
+    ]
+  }
+}
