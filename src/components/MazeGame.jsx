@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 
 const STORAGE_KEY = 'vnr_maze_v2';
 const BC_NAME     = 'vnr_maze_bc';
+const ADMIN_CREDS = { user: 'admin', pass: 'vnr2025' };
 
 /* ═══════════════ QUESTIONS ═══════════════ */
 const QUESTIONS = [
@@ -35,6 +36,18 @@ const QUESTIONS = [
   { q: 'Hội nghị Trung ương 8 họp tháng mấy năm 1941?', opts: ['Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6'], ans: 2 },
   { q: 'Cách mạng tháng Tám thành công, chính quyền về tay ai?', opts: ['Quốc dân Đảng', 'Nhân dân Việt Nam', 'Phong kiến thân Nhật', 'Quân Đồng Minh'], ans: 1 },
   { q: 'Chủ tịch Hồ Chí Minh đọc Tuyên ngôn Độc lập ngày nào?', opts: ['19/8/1945', '25/8/1945', '28/8/1945', '2/9/1945'], ans: 3 },
+  { q: 'Hội Việt Nam Cách mạng Thanh niên thành lập tại thành phố nào?', opts: ['Hà Nội', 'Quảng Châu', 'Mátxcơva', 'Pari'], ans: 1 },
+  { q: 'Việt Nam Quốc Dân Đảng do ai sáng lập?', opts: ['Phan Bội Châu', 'Phan Châu Trinh', 'Nguyễn Thái Học', 'Hoàng Hoa Thám'], ans: 2 },
+  { q: 'Khởi nghĩa Yên Bái (1930) do tổ chức nào lãnh đạo?', opts: ['Đảng Cộng sản VN', 'Hội VNCMTN', 'Việt Nam Quốc Dân Đảng', 'Tân Việt'], ans: 2 },
+  { q: 'Chỉ thị "Nhật–Pháp bắn nhau và hành động của chúng ta" ra ngày nào?', opts: ['9/3/1945', '12/3/1945', '15/3/1945', '25/3/1945'], ans: 1 },
+  { q: 'Đại hội Quốc dân Tân Trào (8/1945) bầu ai làm Chủ tịch Chính phủ lâm thời?', opts: ['Trường Chinh', 'Võ Nguyên Giáp', 'Phạm Văn Đồng', 'Hồ Chí Minh'], ans: 3 },
+  { q: '"Đường Kách mệnh" (1927) do ai biên soạn?', opts: ['Trần Phú', 'Hà Huy Tập', 'Nguyễn Ái Quốc', 'Lê Hồng Phong'], ans: 2 },
+  { q: 'Nguyễn Ái Quốc rời Việt Nam ra đi tìm đường cứu nước năm nào?', opts: ['1909', '1910', '1911', '1913'], ans: 2 },
+  { q: 'Căn cứ địa Pác Bó thuộc tỉnh nào?', opts: ['Lạng Sơn', 'Bắc Kạn', 'Cao Bằng', 'Hà Giang'], ans: 2 },
+  { q: 'Quốc tế Cộng sản (Quốc tế III) thành lập năm nào?', opts: ['1917', '1918', '1919', '1920'], ans: 2 },
+  { q: 'Mặt trận Bình dân Pháp lên cầm quyền năm nào?', opts: ['1934', '1935', '1936', '1937'], ans: 2 },
+  { q: 'Liên Xô tham chiến chống phát xít Đức bắt đầu từ năm nào?', opts: ['1939', '1940', '1941', '1942'], ans: 2 },
+  { q: 'Phong trào Xô Viết Nghệ Tĩnh diễn ra vào năm nào?', opts: ['1929–1930', '1930–1931', '1931–1932', '1932–1933'], ans: 1 },
 ];
 
 /* ═══════════════ CHARACTERS ═══════════════ */
@@ -58,7 +71,7 @@ function polar(r, deg) {
   return [+(CX + r * Math.cos(a)).toFixed(1), +(CY + r * Math.sin(a)).toFixed(1)];
 }
 
-// Node layout: outer → p1/s1 (ring1) → p2/s2 (ring2) → l3 → center
+// Node layout: outer → p1/s1 (ring1) → p2/s2 (ring2) → l3 → l4 → center
 // Primary nodes (p) align with group angles; Secondary nodes (s) offset by HALF
 const NODES = {};
 for (let i = 0; i < N; i++) {
@@ -68,8 +81,9 @@ for (let i = 0; i < N; i++) {
   NODES[`p2${i}`] = { pos: polar(178, ANGLES[i]),        ring: 2, group: i };
   NODES[`s2${i}`] = { pos: polar(153, ANGLES[i] + HALF), ring: 2, group: i, sec: true };
   NODES[`l3${i}`] = { pos: polar(100, ANGLES[i]),        ring: 3, group: i };
+  NODES[`l4${i}`] = { pos: polar(55,  ANGLES[i]),        ring: 4, group: i };
 }
-NODES.c = { pos: [CX, CY], ring: 4, group: -1 };
+NODES.c = { pos: [CX, CY], ring: 5, group: -1 };
 
 const EDGES = {};
 let _qi = 0;
@@ -89,7 +103,9 @@ for (let i = 0; i < N; i++) {
   ae(`s2${i}`, `p2${j}`);   // ring-2 cross (to next group)
   ae(`p2${i}`, `l3${i}`);   // radial to l3
   ae(`l3${i}`, `l3${j}`);   // ring-3 cross
-  ae(`l3${i}`, 'c');         // to center
+  ae(`l3${i}`, `l4${i}`);   // radial to l4
+  ae(`l4${i}`, `l4${j}`);   // ring-4 cross
+  ae(`l4${i}`, 'c');         // to center
 }
 
 function getEdge(a, b) {
@@ -105,7 +121,7 @@ function getNeighbors(nodeId, blocked) {
 /* ═══════════════ SHARED STATE (localStorage + BroadcastChannel) ═══════════════ */
 function loadState()   { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)); } catch { return null; } }
 function saveState(s)  { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch {} }
-function freshState()  { return { players: {}, blocked: {}, leaderboard: [], startTime: null, trails: {}, claimed: {} }; }
+function freshState()  { return { players: {}, blocked: {}, leaderboard: [], startTime: null, trails: {}, claimed: {}, gameOpen: false }; }
 
 function calcScore(rank, correct, wrong) {
   return Math.max(0, (N + 1 - rank) * 20 + correct * 5 - wrong * 3);
@@ -119,7 +135,10 @@ export default function MazeGame() {
   const [selAns,  setSelAns]    = useState(null);
   const [result,  setResult]    = useState(null);
   const [takenMsg,  setTakenMsg]  = useState('');
-  const [claimAlert, setClaimAlert] = useState(''); // "ô đã bị chiếm" notice
+  const [claimAlert, setClaimAlert] = useState('');
+  const [isAdmin, setIsAdmin]   = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
+  const [observeMode, setObserveMode] = useState(false);
   const bcRef = useRef(null);
 
   // ── Real-time sync ──────────────────────────────────────
@@ -164,6 +183,7 @@ export default function MazeGame() {
   }
 
   function doReset() { push(freshState()); setMyGroup(null); setQModal(null); setTakenMsg(''); }
+  function doOpenGame() { const cur = loadState() || freshState(); push({ ...cur, gameOpen: true }); }
 
   // ── Game interaction ─────────────────────────────────────
   const myPlayer = myGroup !== null ? shared.players[myGroup] : null;
@@ -236,12 +256,35 @@ export default function MazeGame() {
   }
 
   // ── Render ───────────────────────────────────────────────
-  const bgStyle = { background: 'linear-gradient(160deg,#0f0205 0%,#1a0a14 55%,#080a1a 100%)', minHeight: '100vh', padding: '1.5rem 1rem' };
+  const bgStyle = { background: 'linear-gradient(160deg,#0f0205 0%,#1a0a14 55%,#080a1a 100%)', minHeight: 'calc(100vh - 3.5rem)', padding: '1.5rem 1rem' };
 
   if (myGroup === null) {
     return (
       <section id="maze-game" style={bgStyle}>
-        <GroupSelect shared={shared} takenMsg={takenMsg} onJoin={joinGroup} onReset={doReset} />
+        {observeMode ? (
+          <GameView
+            observer={true} myGroup={null} shared={shared} hlNodes={[]}
+            onNodeClick={() => {}} qModal={null} selAns={null} setSelAns={() => {}}
+            result={null} onSubmit={() => {}} claimAlert=""
+            onReset={doReset}
+            onExitObserve={() => setObserveMode(false)}
+          />
+        ) : (
+          <>
+            <GroupSelect
+              shared={shared} takenMsg={takenMsg} onJoin={joinGroup} onReset={doReset}
+              isAdmin={isAdmin} onOpenGame={doOpenGame}
+              onShowLogin={() => setShowLogin(true)}
+              onObserve={() => setObserveMode(true)}
+            />
+            {showLogin && (
+              <AdminLoginModal
+                onClose={() => setShowLogin(false)}
+                onSuccess={() => { setIsAdmin(true); setShowLogin(false); }}
+              />
+            )}
+          </>
+        )}
       </section>
     );
   }
@@ -249,23 +292,42 @@ export default function MazeGame() {
   return (
     <section id="maze-game" className="text-white" style={bgStyle}>
       <GameView
-        myGroup={myGroup} shared={shared} hlNodes={hlNodes}
+        observer={false} myGroup={myGroup} shared={shared} hlNodes={hlNodes}
         onNodeClick={onNodeClick}
         qModal={qModal} selAns={selAns} setSelAns={setSelAns}
         result={result} onSubmit={submitAnswer}
         claimAlert={claimAlert}
         onReset={doReset}
+        onExitObserve={null}
       />
     </section>
   );
 }
 
 /* ═══════════════ GROUP SELECT SCREEN ═══════════════ */
-function GroupSelect({ shared, takenMsg, onJoin, onReset }) {
+function GroupSelect({ shared, takenMsg, onJoin, onReset, isAdmin, onOpenGame, onShowLogin, onObserve }) {
   const taken = Object.keys(shared.players).map(Number);
+  const gameOpen = !!shared.gameOpen;
 
   return (
-    <div style={{ maxWidth: 680, margin: '0 auto', textAlign: 'center', paddingTop: '2.5rem' }}>
+    <div style={{ maxWidth: 680, margin: '0 auto', textAlign: 'center', paddingTop: '2.5rem', position: 'relative' }}>
+
+      {/* Admin login button — top right corner */}
+      <div style={{ position: 'absolute', top: 0, right: 0 }}>
+        {isAdmin ? (
+          <div style={{ background: 'rgba(240,180,0,0.18)', border: '1px solid #f0b400', borderRadius: 8, padding: '0.35rem 0.9rem', fontSize: '0.8rem', color: '#f0b400', fontWeight: 800 }}>
+            ★ Admin
+          </div>
+        ) : (
+          <button
+            onClick={onShowLogin}
+            style={{ background: 'rgba(240,180,0,0.12)', border: '1px solid rgba(240,180,0,0.5)', borderRadius: 8, padding: '0.35rem 0.9rem', fontSize: '0.8rem', color: '#f0b400', fontWeight: 700, cursor: 'pointer' }}
+          >
+            🔑 Admin
+          </button>
+        )}
+      </div>
+
       <div style={{ fontSize: '3.5rem', marginBottom: '0.5rem' }}>🗺️</div>
       <h2 style={{ fontSize: 'clamp(1.8rem,4vw,2.5rem)', fontWeight: 900, color: '#f0b400', margin: '0 0 0.3rem' }}>
         MÊ CUNG LỊCH SỬ
@@ -273,6 +335,41 @@ function GroupSelect({ shared, takenMsg, onJoin, onReset }) {
       <p style={{ color: 'rgba(255,200,150,0.75)', fontSize: '0.95rem', marginBottom: '2rem' }}>
         7 nhóm — 7 con đường — 1 đích đến ★
       </p>
+
+      {/* Admin control panel */}
+      {isAdmin && (
+        <div style={{ background: 'rgba(240,180,0,0.08)', border: '1px solid rgba(240,180,0,0.35)', borderRadius: 14, padding: '1rem 1.25rem', marginBottom: '1.5rem', textAlign: 'left' }}>
+          <div style={{ color: '#f0b400', fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.75rem' }}>⚙️ Bảng điều khiển Admin</div>
+          <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+            {!gameOpen ? (
+              <button
+                onClick={onOpenGame}
+                style={{ background: 'linear-gradient(135deg,#276749,#38a169)', border: 'none', color: 'white', fontWeight: 700, fontSize: '0.85rem', padding: '0.5rem 1.2rem', borderRadius: 8, cursor: 'pointer' }}
+              >
+                ▶ Bắt đầu trò chơi mới
+              </button>
+            ) : (
+              <div style={{ background: 'rgba(104,211,145,0.12)', border: '1px solid rgba(104,211,145,0.4)', borderRadius: 8, padding: '0.5rem 1rem', fontSize: '0.82rem', color: '#68d391', fontWeight: 600 }}>
+                ✅ Trò chơi đang mở
+              </div>
+            )}
+            {gameOpen && (
+              <button
+                onClick={onObserve}
+                style={{ background: 'rgba(99,179,237,0.15)', border: '1px solid rgba(99,179,237,0.5)', color: '#63b3ed', fontWeight: 700, fontSize: '0.85rem', padding: '0.5rem 1.2rem', borderRadius: 8, cursor: 'pointer' }}
+              >
+                👁 Quan sát
+              </button>
+            )}
+            <button
+              onClick={onReset}
+              style={{ background: 'rgba(245,101,101,0.15)', border: '1px solid rgba(245,101,101,0.5)', color: '#fc8181', fontWeight: 700, fontSize: '0.85rem', padding: '0.5rem 1.2rem', borderRadius: 8, cursor: 'pointer' }}
+            >
+              🔄 Reset toàn bộ
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Rules */}
       <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(240,180,0,0.2)', borderRadius: 14, padding: '1.2rem 1.5rem', marginBottom: '2rem', textAlign: 'left' }}>
@@ -286,73 +383,75 @@ function GroupSelect({ shared, takenMsg, onJoin, onReset }) {
         </ul>
       </div>
 
-      {/* Group buttons */}
-      <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: '1rem' }}>
-        Chọn nhóm của bạn
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '0.75rem', marginBottom: '1.5rem' }}>
-        {CHARACTERS.map((ch, i) => {
-          const isTaken   = taken.includes(i);
-          const isFinished = shared.players[i]?.finished;
-          return (
-            <button
-              key={i}
-              onClick={() => onJoin(i)}
-              disabled={isTaken}
-              style={{
-                background: isTaken ? 'rgba(255,255,255,0.04)' : `${ch.color}18`,
-                border: `2px solid ${isTaken ? 'rgba(255,255,255,0.1)' : ch.color + '66'}`,
-                borderRadius: 14, padding: '1rem 0.75rem', cursor: isTaken ? 'not-allowed' : 'pointer',
-                opacity: isTaken ? 0.55 : 1, transition: 'all 0.2s', color: 'white',
-              }}
-            >
-              <div style={{ fontSize: '1.6rem', marginBottom: '0.3rem' }}>{ch.emoji}</div>
-              <div style={{ fontWeight: 700, fontSize: '0.9rem', color: ch.color }}>Nhóm {i + 1}</div>
-              <div style={{ fontSize: '0.72rem', color: 'rgba(255,220,180,0.7)', marginTop: '0.2rem' }}>{ch.name}</div>
-              {isTaken && (
-                <div style={{ marginTop: '0.4rem', fontSize: '0.7rem', color: '#fc8181', fontWeight: 600 }}>
-                  {isFinished ? '✓ Đã về đích' : '🔒 Đã có người'}
-                </div>
-              )}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Taken message */}
-      {takenMsg && (
-        <div style={{ background: 'rgba(252,129,74,0.15)', border: '1px solid rgba(252,129,74,0.5)', borderRadius: 10, padding: '0.65rem 1rem', marginBottom: '1rem', color: '#fbd38d', fontWeight: 600, fontSize: '0.9rem' }}>
-          ⚠️ {takenMsg}
+      {/* Waiting state — game not open yet */}
+      {!gameOpen ? (
+        <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 14, padding: '2rem', color: 'rgba(255,200,150,0.6)', fontSize: '0.95rem' }}>
+          ⏳ Đang chờ quản trị viên mở trò chơi...
         </div>
-      )}
+      ) : (
+        <>
+          {/* Group buttons */}
+          <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: '1rem' }}>
+            Chọn nhóm của bạn
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '0.75rem', marginBottom: '1.5rem' }}>
+            {CHARACTERS.map((ch, i) => {
+              const isTaken    = taken.includes(i);
+              const isFinished = shared.players[i]?.finished;
+              return (
+                <button
+                  key={i}
+                  onClick={() => onJoin(i)}
+                  disabled={isTaken}
+                  style={{
+                    background: isTaken ? 'rgba(255,255,255,0.04)' : `${ch.color}18`,
+                    border: `2px solid ${isTaken ? 'rgba(255,255,255,0.1)' : ch.color + '66'}`,
+                    borderRadius: 14, padding: '1rem 0.75rem', cursor: isTaken ? 'not-allowed' : 'pointer',
+                    opacity: isTaken ? 0.55 : 1, transition: 'all 0.2s', color: 'white',
+                  }}
+                >
+                  <div style={{ fontSize: '1.6rem', marginBottom: '0.3rem' }}>{ch.emoji}</div>
+                  <div style={{ fontWeight: 700, fontSize: '0.9rem', color: ch.color }}>Nhóm {i + 1}</div>
+                  <div style={{ fontSize: '0.72rem', color: 'rgba(255,220,180,0.7)', marginTop: '0.2rem' }}>{ch.name}</div>
+                  {isTaken && (
+                    <div style={{ marginTop: '0.4rem', fontSize: '0.7rem', color: '#fc8181', fontWeight: 600 }}>
+                      {isFinished ? '✓ Đã về đích' : '🔒 Đã có người'}
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
 
-      {/* Leaderboard if anyone finished */}
-      {shared.leaderboard.length > 0 && (
-        <div style={{ marginTop: '1rem', background: 'rgba(240,180,0,0.07)', border: '1px solid rgba(240,180,0,0.2)', borderRadius: 14, padding: '1rem' }}>
-          <div style={{ color: '#f0b400', fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.5rem' }}>🏆 Đã về đích</div>
-          {shared.leaderboard.map((b, i) => (
-            <div key={b.gid} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: 'rgba(255,220,180,0.85)', padding: '0.2rem 0' }}>
-              <span>#{i + 1} {b.char?.emoji} Nhóm {b.gid + 1}</span>
-              <span style={{ color: '#f0b400' }}>{b.score} điểm · {b.time}s</span>
+          {/* Taken message */}
+          {takenMsg && (
+            <div style={{ background: 'rgba(252,129,74,0.15)', border: '1px solid rgba(252,129,74,0.5)', borderRadius: 10, padding: '0.65rem 1rem', marginBottom: '1rem', color: '#fbd38d', fontWeight: 600, fontSize: '0.9rem' }}>
+              ⚠️ {takenMsg}
             </div>
-          ))}
-        </div>
-      )}
+          )}
 
-      <button
-        onClick={onReset}
-        style={{ marginTop: '1.5rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,200,150,0.7)', fontSize: '0.82rem', padding: '0.5rem 1.5rem', borderRadius: 8, cursor: 'pointer' }}
-      >
-        🔄 Reset toàn bộ
-      </button>
+          {/* Leaderboard if anyone finished */}
+          {shared.leaderboard.length > 0 && (
+            <div style={{ marginTop: '1rem', background: 'rgba(240,180,0,0.07)', border: '1px solid rgba(240,180,0,0.2)', borderRadius: 14, padding: '1rem' }}>
+              <div style={{ color: '#f0b400', fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.5rem' }}>🏆 Đã về đích</div>
+              {shared.leaderboard.map((b, i) => (
+                <div key={b.gid} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: 'rgba(255,220,180,0.85)', padding: '0.2rem 0' }}>
+                  <span>#{i + 1} {b.char?.emoji} Nhóm {b.gid + 1}</span>
+                  <span style={{ color: '#f0b400' }}>{b.score} điểm · {b.time}s</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }
 
 /* ═══════════════ GAME VIEW ═══════════════ */
-function GameView({ myGroup, shared, hlNodes, onNodeClick, qModal, selAns, setSelAns, result, onSubmit, claimAlert, onReset }) {
-  const myPlayer = shared.players[myGroup];
-  const ch       = CHARACTERS[myGroup];
+function GameView({ observer, myGroup, shared, hlNodes, onNodeClick, qModal, selAns, setSelAns, result, onSubmit, claimAlert, onReset, onExitObserve }) {
+  const myPlayer = observer ? null : shared.players[myGroup];
+  const ch       = observer ? { color: '#63b3ed', emoji: '👁', name: 'Quan sát' } : CHARACTERS[myGroup];
 
   return (
     <div style={{ maxWidth: 980, margin: '0 auto' }}>
@@ -361,11 +460,19 @@ function GameView({ myGroup, shared, hlNodes, onNodeClick, qModal, selAns, setSe
         <div style={{ fontWeight: 900, fontSize: 'clamp(1rem,2.5vw,1.5rem)', color: '#f0b400' }}>🗺️ Mê Cung Lịch Sử</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <div style={{ background: `${ch.color}18`, border: `1px solid ${ch.color}55`, borderRadius: 8, padding: '0.35rem 0.85rem', fontSize: '0.85rem', fontWeight: 700, color: ch.color }}>
-            {ch.emoji} Nhóm {myGroup + 1} — {ch.name}
+            {observer ? `${ch.emoji} Admin — Đang quan sát` : `${ch.emoji} Nhóm ${myGroup + 1} — ${ch.name}`}
           </div>
-          <button onClick={onReset} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,200,150,0.6)', fontSize: '0.72rem', padding: '0.35rem 0.8rem', borderRadius: 7, cursor: 'pointer' }}>
-            Về màn chọn
+          <button
+            onClick={observer ? onExitObserve : onReset}
+            style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,200,150,0.6)', fontSize: '0.72rem', padding: '0.35rem 0.8rem', borderRadius: 7, cursor: 'pointer' }}
+          >
+            {observer ? '← Thoát quan sát' : 'Về màn chọn'}
           </button>
+          {observer && (
+            <button onClick={onReset} style={{ background: 'rgba(245,101,101,0.1)', border: '1px solid rgba(245,101,101,0.4)', color: '#fc8181', fontSize: '0.72rem', padding: '0.35rem 0.8rem', borderRadius: 7, cursor: 'pointer' }}>
+              🔄 Reset
+            </button>
+          )}
         </div>
       </div>
 
@@ -496,7 +603,7 @@ function MazeSVG({ players, blocked, trails, claimed, hlNodes, onNodeClick, myGr
   });
 
   // Draw decorative rings
-  const ringGuides = [305, 250, 225, 178, 153, 100].map((r, i) => (
+  const ringGuides = [305, 250, 225, 178, 153, 100, 55].map((r, i) => (
     <circle key={i} cx={CX} cy={CY} r={r}
       stroke="rgba(240,180,0,0.07)" strokeWidth="1" fill="none" strokeDasharray="3 9"
     />
@@ -589,6 +696,73 @@ function MazeSVG({ players, blocked, trails, claimed, hlNodes, onNodeClick, myGr
         ĐÍCH
       </text>
     </svg>
+  );
+}
+
+/* ═══════════════ ADMIN LOGIN MODAL ═══════════════ */
+function AdminLoginModal({ onClose, onSuccess }) {
+  const [user, setUser] = useState('');
+  const [pass, setPass] = useState('');
+  const [err,  setErr]  = useState('');
+
+  function doLogin() {
+    if (user === ADMIN_CREDS.user && pass === ADMIN_CREDS.pass) {
+      onSuccess();
+    } else {
+      setErr('Sai tài khoản hoặc mật khẩu!');
+    }
+  }
+
+  function onKey(e) { if (e.key === 'Enter') doLogin(); }
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 400, padding: '1rem' }}>
+      <div style={{ background: 'linear-gradient(160deg,#120608,#0a0c1c)', border: '2px solid rgba(240,180,0,0.4)', borderRadius: 20, padding: '2rem', maxWidth: 360, width: '100%', boxShadow: '0 0 60px rgba(240,180,0,0.12)' }}>
+        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+          <div style={{ fontSize: '2rem', marginBottom: '0.4rem' }}>🔑</div>
+          <div style={{ color: '#f0b400', fontWeight: 900, fontSize: '1.1rem', letterSpacing: 1 }}>ĐĂNG NHẬP ADMIN</div>
+          <div style={{ color: 'rgba(255,200,150,0.5)', fontSize: '0.75rem', marginTop: '0.25rem' }}>Chỉ quản trị viên mới được phép</div>
+        </div>
+
+        <div style={{ marginBottom: '0.85rem' }}>
+          <div style={{ color: 'rgba(255,220,180,0.6)', fontSize: '0.75rem', marginBottom: '0.3rem', letterSpacing: 1 }}>TÀI KHOẢN</div>
+          <input
+            type="text" value={user} onChange={e => setUser(e.target.value)} onKeyDown={onKey}
+            autoFocus placeholder="admin"
+            style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, padding: '0.6rem 0.85rem', color: 'white', fontSize: '0.9rem', outline: 'none', boxSizing: 'border-box' }}
+          />
+        </div>
+        <div style={{ marginBottom: '1.25rem' }}>
+          <div style={{ color: 'rgba(255,220,180,0.6)', fontSize: '0.75rem', marginBottom: '0.3rem', letterSpacing: 1 }}>MẬT KHẨU</div>
+          <input
+            type="password" value={pass} onChange={e => setPass(e.target.value)} onKeyDown={onKey}
+            placeholder="••••••••"
+            style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, padding: '0.6rem 0.85rem', color: 'white', fontSize: '0.9rem', outline: 'none', boxSizing: 'border-box' }}
+          />
+        </div>
+
+        {err && (
+          <div style={{ background: 'rgba(245,101,101,0.15)', border: '1px solid rgba(245,101,101,0.4)', borderRadius: 8, padding: '0.5rem 0.75rem', marginBottom: '1rem', color: '#fc8181', fontSize: '0.82rem', fontWeight: 600 }}>
+            ⚠️ {err}
+          </div>
+        )}
+
+        <div style={{ display: 'flex', gap: '0.6rem' }}>
+          <button
+            onClick={onClose}
+            style={{ flex: 1, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,200,150,0.7)', fontWeight: 600, fontSize: '0.85rem', padding: '0.65rem', borderRadius: 10, cursor: 'pointer' }}
+          >
+            Hủy
+          </button>
+          <button
+            onClick={doLogin}
+            style={{ flex: 2, background: 'linear-gradient(135deg,#7f5800,#c8960a)', border: 'none', color: 'white', fontWeight: 700, fontSize: '0.9rem', padding: '0.65rem', borderRadius: 10, cursor: 'pointer', letterSpacing: 0.5 }}
+          >
+            Đăng nhập
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 

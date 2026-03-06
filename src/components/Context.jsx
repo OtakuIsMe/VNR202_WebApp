@@ -40,12 +40,6 @@ export default function Context() {
             transform: inView ? 'translateY(0)' : 'translateY(24px)',
           }}
         >
-          <div
-            className="inline-block text-white text-xs font-bold tracking-widest px-3 py-1 rounded uppercase mb-4"
-            style={{ background: '#cc0000' }}
-          >
-            Mục I
-          </div>
           <h2
             className="font-black text-white"
             style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)' }}

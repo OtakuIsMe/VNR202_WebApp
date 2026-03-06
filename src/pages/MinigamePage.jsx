@@ -7,7 +7,7 @@ export default function MinigamePage() {
   }
 
   return (
-    <div className="w-full min-h-screen" style={{ background: 'linear-gradient(160deg,#0f0205 0%,#1a0a14 55%,#080a1a 100%)' }}>
+    <div style={{ width: '100%', height: '100vh', overflow: 'hidden', background: 'linear-gradient(160deg,#0f0205 0%,#1a0a14 55%,#080a1a 100%)' }}>
       {/* Mini top-bar */}
       <nav
         className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 h-14"
@@ -36,8 +36,8 @@ export default function MinigamePage() {
         <div style={{ width: 120 }} />
       </nav>
 
-      {/* Content — offset for fixed nav */}
-      <div className="pt-14">
+      {/* Content — offset for fixed nav, fills remaining height, scrollable inside */}
+      <div style={{ paddingTop: '3.5rem', height: '100vh', overflowY: 'auto', boxSizing: 'border-box' }}>
         <MazeGame />
       </div>
     </div>

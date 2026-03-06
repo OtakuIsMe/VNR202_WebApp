@@ -83,12 +83,6 @@ export default function Navbar() {
                   className="relative flex flex-col items-center gap-0.5 pb-1 group"
                 >
                   <span
-                    className="text-[9px] font-black tracking-widest transition-colors duration-200"
-                    style={{ color: isActive ? '#f0b400' : 'rgba(255,255,255,0.3)' }}
-                  >
-                    {s.num}
-                  </span>
-                  <span
                     className="text-[11px] font-semibold tracking-wide whitespace-nowrap transition-colors duration-200"
                     style={{ color: isActive ? '#ffffff' : 'rgba(255,255,255,0.55)' }}
                   >
@@ -210,12 +204,6 @@ export default function Navbar() {
                   borderLeft: `2px solid ${isActive ? '#f0b400' : 'transparent'}`,
                 }}
               >
-                <span
-                  className="text-xs font-black w-5 text-center flex-shrink-0"
-                  style={{ color: isActive ? '#f0b400' : 'rgba(255,255,255,0.25)' }}
-                >
-                  {s.num}
-                </span>
                 <span
                   className="text-sm font-semibold"
                   style={{ color: isActive ? '#ffffff' : 'rgba(255,255,255,0.6)' }}

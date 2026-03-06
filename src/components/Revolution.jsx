@@ -54,12 +54,6 @@ export default function Revolution() {
             transform: inView ? 'translateY(0)' : 'translateY(24px)',
           }}
         >
-          <div
-            className="inline-block text-white text-xs font-bold tracking-widest px-3 py-1 rounded uppercase mb-4"
-            style={{ background: '#cc0000' }}
-          >
-            Mục III
-          </div>
           <h2
             className="font-black"
             style={{ fontSize: 'clamp(1.6rem, 3.5vw, 2.5rem)' }}
@@ -173,6 +167,7 @@ export default function Revolution() {
             className="w-full object-cover"
             style={{
               maxHeight: '300px',
+              objectPosition: 'top',
               filter: 'grayscale(60%) contrast(1.1) brightness(0.7)',
             }}
           />

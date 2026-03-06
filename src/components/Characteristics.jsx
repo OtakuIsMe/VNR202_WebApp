@@ -27,12 +27,6 @@ export default function Characteristics() {
             transform: inView ? 'translateY(0)' : 'translateY(24px)',
           }}
         >
-          <div
-            className="inline-block text-white text-xs font-bold tracking-widest px-3 py-1 rounded uppercase mb-4"
-            style={{ background: '#cc0000' }}
-          >
-            Mục IV
-          </div>
           <h2
             className="font-black text-gray-900"
             style={{ fontSize: 'clamp(1.6rem, 3.5vw, 2.5rem)' }}

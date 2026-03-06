@@ -42,12 +42,6 @@ export default function Lessons() {
             transform: inView ? 'translateY(0)' : 'translateY(24px)',
           }}
         >
-          <div
-            className="inline-block text-xs font-bold tracking-widest px-3 py-1 rounded uppercase mb-4"
-            style={{ background: 'rgba(255,255,255,0.15)', color: '#fde68a' }}
-          >
-            Mục VI
-          </div>
           <h2
             className="font-black"
             style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)' }}
