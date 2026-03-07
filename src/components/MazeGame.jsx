@@ -192,7 +192,7 @@ export default function MazeGame() {
     : getNeighbors(myPlayer.pos, shared.blocked).filter(id => {
         const claimedBy = (shared.claimed || {})[id];
         const alreadyVisited = (myPlayer.visited || []).includes(id);
-        return !alreadyVisited && (claimedBy === undefined || claimedBy === myGroup);
+        return !alreadyVisited && (id === 'c' || claimedBy === undefined || claimedBy === myGroup);
       });
 
   function onNodeClick(nodeId) {
@@ -219,7 +219,8 @@ export default function MazeGame() {
         const newPos    = qModal.targetNode;
         const claimedBy = (cur.claimed || {})[newPos];
         // Race condition: another group claimed this node while we were answering
-        if (claimedBy !== undefined && claimedBy !== myGroup) {
+        // Exception: center node ('c') is always reachable by all teams
+        if (newPos !== 'c' && claimedBy !== undefined && claimedBy !== myGroup) {
           const rival = CHARACTERS[claimedBy];
           setClaimAlert(`${rival.emoji} Ô này đã bị chiếm bởi Nhóm ${claimedBy + 1}!`);
           setTimeout(() => setClaimAlert(''), 3500);
