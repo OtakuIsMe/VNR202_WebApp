@@ -140,7 +140,7 @@ export default function Hero() {
             <img
               src="/dang-cong-san-viet-nam-ra-doi.jpg"
               alt="Hội nghị thành lập Đảng Cộng sản Việt Nam (3/2/1930)"
-              className="w-full object-cover"
+              className="w-full object-cover object-top"
               style={{
                 height: '180px',
                 filter: 'grayscale(100%) contrast(1.1) brightness(0.85)',

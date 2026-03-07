@@ -112,7 +112,7 @@ export default function Preparation() {
               <img
                 src="/Ho-Chi-Minh-va-thanh-vien-cua-nhom-con-nai.jpg"
                 alt="Hồ Chí Minh cùng nhóm Con Nai (OSS) 1945"
-                className="w-full object-cover"
+                className="w-full object-cover object-top"
                 style={{
                   height: '160px',
                   filter: 'grayscale(100%) contrast(1.1) brightness(0.85)',
